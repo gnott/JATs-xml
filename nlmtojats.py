@@ -1,5 +1,6 @@
 import xml
 from xml.etree import ElementTree
+from xml.etree.ElementTree import Element, SubElement
 from xml.dom import minidom
 #import cgi
 import re
@@ -56,6 +57,57 @@ def convert_issn(root):
 
     return root
 
+def convert_pub_date(root):
+    """
+    Given an xml.etree.ElementTree.Element,
+    Find pub-date tag and change it
+    """
+    for tag in root.findall('./front/article-meta/pub-date'):
+        pub_type = tag.get('pub-type')
+        if pub_type == 'epub':
+            # Change it
+            tag.set('publication-format', 'electronic')
+            tag.set('date-type', 'pub')
+            del tag.attrib['pub-type']
+
+    return root
+
+def convert_contrib_orcid(root):
+    """
+    Given an xml.etree.ElementTree.Element,
+    Find contrib uri content-type="orcid" tag and change it
+    """
+    for contrib_tag in root.findall('./front/article-meta/contrib-group/contrib'):
+        for uri_tag in contrib_tag.findall('./uri'):
+            content_type = uri_tag.get('content-type')
+            if content_type == 'orcid':
+                # Rename and change it
+                uri_tag.tag = 'contrib-id'
+                uri_tag.set('contrib-id-type', "orcid")
+                del uri_tag.attrib['content-type']
+                
+    return root
+
+def convert_aff_department(root):
+    """
+    Given an xml.etree.ElementTree.Element,
+    Find aff addr-line named-content content-type="department" and change it
+    """
+    for addr_line_tag in root.findall('./front/article-meta/contrib-group/aff/addr-line'):
+
+        for named_content_tag in addr_line_tag.findall('./named-content'):
+            content_type = named_content_tag.get('content-type')
+
+            if content_type == 'department':
+                # Rename and change it
+                addr_line_tag.tag = 'institution'
+                addr_line_tag.set('content-type', "dept")
+                addr_line_tag.text = named_content_tag.text
+                
+                addr_line_tag.remove(named_content_tag)
+
+    return root
+
 def convert(root):
     """
     Parent method that calls each individual conversion step
@@ -63,7 +115,10 @@ def convert(root):
     
     convert_root(root)
     convert_issn(root)
-
+    convert_pub_date(root)
+    convert_contrib_orcid(root)
+    convert_aff_department(root)
+    
     return root
 
 
@@ -155,6 +210,7 @@ if __name__ == '__main__':
                             #,"elife00007.xml"
                             #,"elife00011.xml"
                             ,"elife00012.xml"
+                            ,"elife02619.xml"
                             #,"elife00856.xml"
                             ]
     #"""
