@@ -108,6 +108,66 @@ def convert_aff_department(root):
 
     return root
 
+def convert_fn_equal_contrib(root):
+    """
+    Given an xml.etree.ElementTree.Element,
+    Find fn fn-type="other" id="equal-contrib" and change it
+    """
+    for fn_tag in root.findall('./front/article-meta/author-notes/fn'):
+        fn_type = fn_tag.get('fn-type')
+        id = fn_tag.get('id')
+        
+        # Convert id to a string in case it is None
+        if fn_type == "other" and str(id)[0:5] == 'equal':
+            fn_tag.set('fn-type', "con")
+
+    for xref_tag in root.findall('./front/article-meta/contrib-group/contrib/xref'):
+        ref_type = xref_tag.get('ref-type')
+        rid = xref_tag.get('rid')
+
+        if ref_type == "fn" and str(rid)[0:5] == 'equal':
+            xref_tag.set('ref-type', "con")
+   
+    return root
+
+def convert_copyright_statement(root):
+    """
+    Given an xml.etree.ElementTree.Element,
+    Find copyright-statement tag and change it
+    """
+    for copyright_tag in root.findall('./front/article-meta/permissions/copyright-statement'):
+        # Remove the leading Copyright word
+        pattern = re.compile("^Copyright ", re.UNICODE)
+        copyright_tag.text = pattern.sub('', copyright_tag.text)
+
+    return root
+
+def convert_license(root):
+    """
+    Given an xml.etree.ElementTree.Element,
+    Find license tag and change it
+    """
+    for license_tag in root.findall('./front/article-meta/permissions/license'):
+        del license_tag.attrib['license-type']
+        for license_p_tag in license_tag.findall('./license-p'):
+            if len(license_p_tag.attrib) > 0:
+                len(license_p_tag.attrib)
+
+    return root
+
+def convert_funding_source(root):
+    """
+    Given an xml.etree.ElementTree.Element,
+    Find funding-source tag and change it
+    """
+    for funding_source_tag in root.findall('./front/article-meta/funding-group/award-group/funding-source'):
+        # TODO!!!!!
+        for ext_link_tag in funding_source_tag.findall('./ext-link'):
+            print ext_link_tag
+        
+
+    return root
+
 def convert(root):
     """
     Parent method that calls each individual conversion step
@@ -118,7 +178,11 @@ def convert(root):
     convert_pub_date(root)
     convert_contrib_orcid(root)
     convert_aff_department(root)
-    
+    convert_fn_equal_contrib(root)
+    convert_copyright_statement(root)
+    convert_license(root)
+    convert_funding_source(root)
+
     return root
 
 
@@ -210,7 +274,10 @@ if __name__ == '__main__':
                             #,"elife00007.xml"
                             #,"elife00011.xml"
                             ,"elife00012.xml"
+                            ,"elife00365.xml"
+                            ,"elife02053.xml"
                             ,"elife02619.xml"
+                            ,"elife02951.xml"
                             #,"elife00856.xml"
                             ]
     #"""
