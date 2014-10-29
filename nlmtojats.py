@@ -183,6 +183,21 @@ def convert_funding_source(root):
 
     return root
 
+def convert_related_article(root):
+    """
+    Given an xml.etree.ElementTree.Element,
+    Find related-article tag and change it
+    """
+    
+    # Note the double slash to find the tag in all subelements, mostly paragraphs
+    for related_article_tag in root.findall('./back/sec/sec//related-article'):
+        # Change it
+        print related_article_tag
+        if related_article_tag.get('related-article-type') == 'generated-dataset':
+            related_article_tag.set('related-article-type', "existing-dataset")
+       
+    return root
+
 def convert_related_object(root):
     """
     Given an xml.etree.ElementTree.Element,
@@ -202,6 +217,33 @@ def convert_related_object(root):
 
     return root
 
+def convert_mixed_citation(root):
+    """
+    Given an xml.etree.ElementTree.Element,
+    Find mixed-citation tag and change it
+    """
+    
+    for mixed_citation_tag in root.findall('./back/ref-list/ref/mixed-citation'):
+        # Change it
+        mixed_citation_tag.tag = 'element-citation'
+        
+    return root
+
+def convert_custom_meta_group(root):
+    """
+    Given an xml.etree.ElementTree.Element,
+    Find custom-meta-group tag and change it
+    """
+    
+    for custom_meta_group_tag in root.findall('./front/article-meta/custom-meta-group'):
+        for custom_meta_tag in custom_meta_group_tag.findall('./custom-meta'):
+            for meta_name_tag in custom_meta_tag.findall('./meta-name'):
+                if meta_name_tag.text == 'elife-xml-version':
+                    # Change the version
+                    for meta_value_tag in custom_meta_tag.findall('./meta-value'):
+                        meta_value_tag.text = "2"
+    return root
+
 def convert(root):
     """
     Parent method that calls each individual conversion step
@@ -216,7 +258,11 @@ def convert(root):
     convert_copyright_statement(root)
     convert_license(root)
     convert_funding_source(root)
+    # Convert related-article before related-object
+    convert_related_article(root)
     convert_related_object(root)
+    convert_mixed_citation(root)
+    convert_custom_meta_group(root)
 
     return root
 
