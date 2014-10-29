@@ -161,10 +161,44 @@ def convert_funding_source(root):
     Find funding-source tag and change it
     """
     for funding_source_tag in root.findall('./front/article-meta/funding-group/award-group/funding-source'):
-        # TODO!!!!!
-        for ext_link_tag in funding_source_tag.findall('./ext-link'):
-            print ext_link_tag
+        institution_wrap_tag = SubElement(funding_source_tag, 'institution-wrap')
         
+        for ext_link_tag in funding_source_tag.findall('./ext-link'):
+            # Assume it is a fundref tag, we do not need it anymore
+            funding_source_tag.remove(ext_link_tag)
+            
+        for named_content_tag in funding_source_tag.findall('./named-content'):
+            institution_id_tag = SubElement(institution_wrap_tag, 'institution-id')
+            institution_id_tag.set('institution-id-type', "FundRef")
+            institution_id_tag.text = named_content_tag.text
+            funding_source_tag.remove(named_content_tag)
+            
+        institution_tag = SubElement(institution_wrap_tag, 'institution')
+        institution_tag.set('content-type', "university")
+        institution_tag.text = funding_source_tag.text.strip()
+
+        # Clean up
+        
+        funding_source_tag.text = None
+
+    return root
+
+def convert_related_object(root):
+    """
+    Given an xml.etree.ElementTree.Element,
+    Find related-object tag and change it
+    """
+    
+    # Note the double slash to find the tag in all subelements, mostly paragraphs
+    for related_object_tag in root.findall('./back/sec/sec//related-object'):
+        # Rename and change it
+        related_object_tag.tag = 'related-article'
+        related_object_tag.set('related-article-type', related_object_tag.get('content-type'))
+        
+        del related_object_tag.attrib['content-type']
+        del related_object_tag.attrib['document-id']
+        del related_object_tag.attrib['document-id-type']
+        del related_object_tag.attrib['document-type']
 
     return root
 
@@ -182,6 +216,7 @@ def convert(root):
     convert_copyright_statement(root)
     convert_license(root)
     convert_funding_source(root)
+    convert_related_object(root)
 
     return root
 
@@ -271,7 +306,7 @@ if __name__ == '__main__':
     #"""
     article_xml_filenames = ["elife00003.xml"
                             #,"elife00005.xml"
-                            #,"elife00007.xml"
+                            ,"elife00007.xml"
                             #,"elife00011.xml"
                             ,"elife00012.xml"
                             ,"elife00365.xml"
