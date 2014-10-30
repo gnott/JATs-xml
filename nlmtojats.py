@@ -226,6 +226,25 @@ def convert_mixed_citation(root):
         # Change it
         mixed_citation_tag.tag = 'element-citation'
         
+    # Continue by removing extra punctuation
+    for mixed_citation_tag in root.findall('./back/ref-list/ref/element-citation'):
+        tag_list = []
+        tag_list.append('./person-group')
+        tag_list.append('./year')
+        tag_list.append('./article-title')
+        tag_list.append('./source')
+        tag_list.append('./volume')
+        tag_list.append('./fpage')
+        tag_list.append('./lpage')
+        tag_list.append('./ext-link')
+        tag_list.append('./pub-id')
+        tag_list.append('./publisher-loc')
+        tag_list.append('./publisher-name')
+        
+        for tag_name in tag_list:
+            for tag in mixed_citation_tag.findall(tag_name):
+                tag.tail = ''
+        
     return root
 
 def convert_custom_meta_group(root):
