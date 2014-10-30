@@ -174,7 +174,6 @@ def convert_funding_source(root):
             funding_source_tag.remove(named_content_tag)
             
         institution_tag = SubElement(institution_wrap_tag, 'institution')
-        institution_tag.set('content-type', "university")
         institution_tag.text = funding_source_tag.text.strip()
 
         # Clean up
@@ -356,6 +355,7 @@ if __name__ == '__main__':
                             #,"elife00011.xml"
                             ,"elife00012.xml"
                             ,"elife00365.xml"
+                            ,"elife00790.xml"
                             ,"elife02053.xml"
                             ,"elife02619.xml"
                             ,"elife02951.xml"
