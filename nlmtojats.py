@@ -205,7 +205,7 @@ def convert_related_object(root):
     
     # Note the double slash to find the tag in all subelements, mostly paragraphs
     for related_object_tag in root.findall('./back/sec/sec//related-object'):
-        # Rename and change it
+        # Change it
         related_object_tag.tag = 'related-article'
         related_object_tag.set('related-article-type', related_object_tag.get('content-type'))
         
@@ -259,7 +259,6 @@ def convert(root):
     convert_funding_source(root)
     # Convert related-article before related-object
     convert_related_article(root)
-    convert_related_object(root)
     convert_mixed_citation(root)
     convert_custom_meta_group(root)
 
