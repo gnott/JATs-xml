@@ -163,8 +163,12 @@ def convert_contrib_role(root):
             elif role_tag.text.lstrip()[0:3] == 'is ':
                 # Article 02619
                 for name_tag in contrib_tag.findall('./name'):
-                    x_tag = SubElement(name_tag, 'x')
+                    x_tag = Element('x')
                     x_tag.text = ' is '
+                    
+                    # Hardcoded insert an Element at index 1 for this article
+                    contrib_tag.insert(1, x_tag)
+                    
                 role_tag.text = role_tag.text.lstrip()[3:]
 
             # Debug print role values for inspection
