@@ -334,11 +334,25 @@ def convert_mixed_citation(root):
         tag_list.append('./publisher-loc')
         tag_list.append('./publisher-name')
         tag_list.append('./comment')
+        tag_list.append('./collab')
+        tag_list.append('./issue')
+        tag_list.append('./edition')
+        tag_list.append('./bold')
+        tag_list.append('./supplement')
+        tag_list.append('./etal')
         
         for tag_name in tag_list:
             for tag in mixed_citation_tag.findall(tag_name):
-                tag.tail = ''
-        
+                if tag.tail:
+                    # Debugging - not sure if the editor values of a citation are important
+                    #  check them out later - TODO!!!
+                    pattern = re.compile("editor", re.UNICODE)
+                    if pattern.search(tag.tail):
+                        print "found citation editors in article doi " + get_doi(root)
+                        
+                    # Remove the content
+                    tag.tail = ''
+
     return root
 
 def convert_custom_meta_group(root):
@@ -355,6 +369,15 @@ def convert_custom_meta_group(root):
                     for meta_value_tag in custom_meta_tag.findall('./meta-value'):
                         meta_value_tag.text = "2"
     return root
+
+def get_doi(root):
+    
+    doi = None
+    
+    for tag in root.findall('./front/article-meta/article-id[@pub-id-type="doi"]'):
+        doi = tag.text
+        
+    return doi
 
 def convert(root):
     """
