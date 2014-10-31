@@ -88,6 +88,95 @@ def convert_contrib_orcid(root):
                 
     return root
 
+def convert_contrib_label(root):
+    """
+    Given an xml.etree.ElementTree.Element,
+    Find contrib tag and change it regarding labels and numbering
+    """
+    for contrib_tag in root.findall('./front/article-meta/contrib-group/contrib'):
+        # Remove the numeric label 1, 2, etc.
+        for xref_tag in contrib_tag.findall('./xref'):
+            if xref_tag.get('ref-type') == "aff":
+                xref_tag.text = ''
+        # Remove the <label> tag
+        for aff_tag in contrib_tag.findall('./aff'):      
+            for label_tag in aff_tag.findall('./label'):
+                if len(label_tag.attrib) <= 0:
+                    # Label with no attributes, remove it
+                    aff_tag.remove(label_tag)
+                    
+    return root
+
+def convert_contrib_role(root):
+    """
+    Given an xml.etree.ElementTree.Element,
+    Find contrib role and change it
+    """
+    
+    for contrib_tag in root.findall('./front/article-meta/contrib-group/contrib'):
+
+        # Edit the <role> tag contents
+        for role_tag in contrib_tag.findall('./role'):
+            # At least two messy articles (02394 and 02619)
+            #  require text changes to clean up the role value
+            
+            if role_tag.text.lstrip()[0:4] == 'is a':
+                # Article 02394
+                for name_tag in contrib_tag.findall('./name'):
+                    x_tag = Element('x')
+                    x_tag.text = ' is a '
+                    
+                    # Hardcoded insert an Element at index 1 for this article
+                    contrib_tag.insert(1, x_tag)
+
+                role_tag.text = role_tag.text.lstrip()[4:]
+                
+                # Also need to change the tail on 02394
+                xref_tag = SubElement(contrib_tag, 'xref')
+                xref_tag.set('ref-type', "aff")
+                xref_tag.set('rid', "aff1")
+                
+                x_tag = SubElement(contrib_tag, 'x')
+                x_tag.text = ', and is at the '
+                
+                # Hardcoding the remaining values since it is the only article like this
+                for contrib_group_tag in root.findall('./front/article-meta/contrib-group'):
+                    aff_tag = SubElement(contrib_group_tag, 'aff')
+                    aff_tag.set('id', "aff1")
+                    institution_tag = SubElement(aff_tag, 'institution')
+                    institution_tag.text = 'Max Planck Institute for Chemical Ecology'
+                    addr_line_tag = SubElement(aff_tag, 'addr-line')
+                    named_content_tag = SubElement(addr_line_tag, 'named-content')
+                    named_content_tag.set('content-type', "city")
+                    named_content_tag.text = 'Jena'
+                    country_tag = SubElement(aff_tag, 'country')
+                    country_tag.text = 'Germany'
+                    email_tag = SubElement(aff_tag, 'email')
+                    for tag in contrib_tag.findall('./email'):
+                        email_tag.text = tag.text
+                        contrib_tag.remove(tag)
+                
+                # Remove the old tail content
+                for tag in role_tag.iter():
+                    tag.tail = ''
+            
+            elif role_tag.text.lstrip()[0:3] == 'is ':
+                # Article 02619
+                for name_tag in contrib_tag.findall('./name'):
+                    x_tag = SubElement(name_tag, 'x')
+                    x_tag.text = ' is '
+                role_tag.text = role_tag.text.lstrip()[3:]
+
+            # Debug print role values for inspection
+            """
+            for tag in role_tag.iter():
+                print tag.text
+                if tag.tail:
+                    print tag.tail
+            """
+   
+    return root
+    
 def convert_aff_department(root):
     """
     Given an xml.etree.ElementTree.Element,
@@ -270,7 +359,9 @@ def convert(root):
     convert_root(root)
     convert_issn(root)
     convert_pub_date(root)
+    convert_contrib_label(root)
     convert_contrib_orcid(root)
+    convert_contrib_role(root)
     convert_aff_department(root)
     convert_fn_equal_contrib(root)
     convert_copyright_statement(root)
@@ -375,7 +466,9 @@ if __name__ == '__main__':
                             ,"elife00365.xml"
                             ,"elife00790.xml"
                             ,"elife02053.xml"
+                            ,"elife02394.xml"
                             ,"elife02619.xml"
+                            ,"elife02791.xml"
                             ,"elife02951.xml"
                             #,"elife00856.xml"
                             ]
