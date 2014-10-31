@@ -329,6 +329,7 @@ def convert_mixed_citation(root):
         tag_list.append('./pub-id')
         tag_list.append('./publisher-loc')
         tag_list.append('./publisher-name')
+        tag_list.append('./comment')
         
         for tag_name in tag_list:
             for tag in mixed_citation_tag.findall(tag_name):
@@ -470,6 +471,7 @@ if __name__ == '__main__':
                             ,"elife02619.xml"
                             ,"elife02791.xml"
                             ,"elife02951.xml"
+                            ,"elife03401.xml"
                             #,"elife00856.xml"
                             ]
     #"""
