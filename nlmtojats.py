@@ -201,6 +201,60 @@ def convert_aff_department(root):
 
     return root
 
+def convert_contrib_aff(root):
+    """
+    Given an xml.etree.ElementTree.Element,
+    Find contrib aff and change it regarding extra words and punctuation
+    """
+
+    # Remove extra label tags
+    for aff_tag in root.findall('./front/article-meta/contrib-group/aff'):
+        for label_tag in aff_tag.findall('./label'):
+            aff_tag.remove(label_tag)   
+
+    # Change contrib aff tag content
+    for contrib_tag in root.findall('./front/article-meta/contrib-group/contrib'):
+        for aff_tag in contrib_tag.findall('./aff'):
+
+            x_tag = None
+            
+            # Take the tail of the bold tag and surround it with an x tag
+            for bold_tag in aff_tag.findall('./bold'):
+                
+                print "found a bold tag"
+                if bold_tag.tail and bold_tag.tail.strip() != '':
+                    # Change the bold_tag to an x_tag
+                    x_tag = Element('x')
+                    x_tag.text = bold_tag.tail
+                    
+                    # Insert the x tag before the aff tag
+                    aff_index = get_first_element_index(contrib_tag, 'aff')
+                    contrib_tag.insert(aff_index - 1, x_tag)
+                    
+                    aff_tag.remove(bold_tag)
+                else:
+                    # No tail, just remove the tag
+                    aff_tag.remove(bold_tag)
+            
+            # Turn the x_tag text into a role for some articles
+            if x_tag is not None:
+                
+                # How do we do this? One way is to first ignore all the values we know
+                #  do not contain a role
+                non_role_values = ['is an', 'is at', 'is at the', 'is in', 'is in the']
+                if x_tag.text.strip() not in non_role_values:
+                    
+                    print "x_tag in " + get_doi(root) + ": " + x_tag.text
+
+        # Print out some plain text values that start with 'is' for review
+        """
+        for tag in aff_tag.iter():
+            if tag.tail and tag.tail.strip()[0:3] == 'is ':
+                print tag.tail
+        """
+                
+    return root
+
 def convert_fn_equal_contrib(root):
     """
     Given an xml.etree.ElementTree.Element,
@@ -370,6 +424,23 @@ def convert_custom_meta_group(root):
                         meta_value_tag.text = "2"
     return root
 
+def get_first_element_index(root, tag_name):
+    """
+    In order to use Element.insert() in a convenient way,
+    this function will find the first child tag with tag_name
+    and return its index position
+    The index can then be used to insert an element before or after the
+    found tag using Element.insert() 
+    """
+    tag_index = 1
+    for tag in root:
+        if tag.tag == tag_name:
+            # Return the first one found if there is a match
+            return tag_index
+        tag_index = tag_index + 1
+    # Default
+    return None
+
 def get_doi(root):
     
     doi = None
@@ -390,6 +461,7 @@ def convert(root):
     convert_contrib_label(root)
     convert_contrib_orcid(root)
     convert_contrib_role(root)
+    convert_contrib_aff(root)
     convert_aff_department(root)
     convert_fn_equal_contrib(root)
     convert_copyright_statement(root)
@@ -491,6 +563,8 @@ if __name__ == '__main__':
                             ,"elife00007.xml"
                             #,"elife00011.xml"
                             ,"elife00012.xml"
+                            ,"elife00351.xml"
+                            ,"elife00352.xml"
                             ,"elife00365.xml"
                             ,"elife00790.xml"
                             ,"elife02053.xml"
