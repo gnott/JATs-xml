@@ -187,18 +187,29 @@ def convert_aff_department(root):
     Find aff addr-line named-content content-type="department" and change it
     """
     for addr_line_tag in root.findall('./front/article-meta/contrib-group/aff/addr-line'):
+        addr_line_tag = convert_addr_line(addr_line_tag)
+    for addr_line_tag in root.findall('./front/article-meta/contrib-group/contrib/aff/addr-line'):
+        addr_line_tag = convert_addr_line(addr_line_tag)
 
-        for named_content_tag in addr_line_tag.findall('./named-content'):
-            content_type = named_content_tag.get('content-type')
+    return root
 
-            if content_type == 'department':
-                # Rename and change it
-                addr_line_tag.tag = 'institution'
-                addr_line_tag.set('content-type', "dept")
-                addr_line_tag.text = named_content_tag.text
-                
-                addr_line_tag.remove(named_content_tag)
+def convert_addr_line(root):
+    """
+    Given an xml.etree.ElementTree.Element for addr-line
+    Change the named-content department tag to the new format
+    """
+    
+    for named_content_tag in root.findall('./named-content'):
+        content_type = named_content_tag.get('content-type')
 
+        if content_type == 'department':
+            # Rename and change it
+            root.tag = 'institution'
+            root.set('content-type', "dept")
+            root.text = named_content_tag.text
+            
+            root.remove(named_content_tag)
+    
     return root
 
 def convert_contrib_aff(root):
