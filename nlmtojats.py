@@ -319,53 +319,113 @@ def change_x_tag_to_role(contrib_tag, aff_tag, x_tag):
     
     elif x_tag.text.strip() == 'is Deputy Editor of':
         # 10.7554/eLife.00615
-        # TODO!!
-        pass
+
+        contrib_tag = add_tag_before('x', ' is ', contrib_tag, 'aff')
+        contrib_tag = add_tag_before('role', 'Deputy Editor of ', contrib_tag, 'aff')
+        for role_tag in contrib_tag.findall('./role'):
+            italic_tag = SubElement(role_tag, 'italic')
+            italic_tag.text = 'eLife'
+        contrib_tag = add_tag_before('x', ' and ', contrib_tag, 'aff')
+        contrib_tag = add_tag_before('role', 'Director', contrib_tag, 'aff')
+        contrib_tag = add_tag_before('x', ' of ', contrib_tag, 'aff')
+        
+        # Remove aff tag italic and its tail
+        for italic_tag in aff_tag.findall('./italic'):
+            aff_tag.remove(italic_tag)
+        
+        # Remove x_tag
+        contrib_tag.remove(x_tag)
     
     elif x_tag.text.strip() == 'is the director of':
         # 10.7554/eLife.00639
-        # TODO!!
-        pass
+        contrib_tag = add_tag_before('x', ' is the ', contrib_tag, 'aff')
+        contrib_tag = add_tag_before('role', 'Director', contrib_tag, 'aff')
+        contrib_tag = add_tag_before('x', ' of ', contrib_tag, 'aff')
+        
+        # Remove x_tag
+        contrib_tag.remove(x_tag)
     
     elif x_tag.text.strip() == 'is professor emeritus in the':
         # 10.7554/eLife.00642
-        # TODO!!
-        pass
+        
+        contrib_tag = add_tag_before('x', ' is ', contrib_tag, 'aff')
+        contrib_tag = add_tag_before('role', 'Professor emeritus', contrib_tag, 'aff')
+        contrib_tag = add_tag_before('x', ' in the ', contrib_tag, 'aff')
+        
+        # Remove x_tag
+        contrib_tag.remove(x_tag)
     
     elif x_tag.text.strip() == 'is a PhD student in the':
         # 10.7554/eLife.00646
-        # TODO!!
-        pass
+        # 10.7554/eLife.02658
+        
+        contrib_tag = add_tag_before('x', ' is a ', contrib_tag, 'aff')
+        contrib_tag = add_tag_before('role', 'PhD student', contrib_tag, 'aff')
+        contrib_tag = add_tag_before('x', ' in the ', contrib_tag, 'aff')
+
+        # Remove x_tag
+        contrib_tag.remove(x_tag)
     
-    elif x_tag.text.strip() == 'is director at the ':
+    elif x_tag.text.strip() == 'is director at the':
         # 10.7554/eLife.00856
-        # TODO!!
+        
+        contrib_tag = add_tag_before('x', ' is ', contrib_tag, 'aff')
+        contrib_tag = add_tag_before('role', 'Director', contrib_tag, 'aff')
+        contrib_tag = add_tag_before('x', ' at the ', contrib_tag, 'aff')
+
+        # Remove x_tag
+        contrib_tag.remove(x_tag)
+        
         pass
     
     elif x_tag.text.strip() == ', an':
         # 10.7554/eLife.00903
-        # TODO!!
-        pass
+
+        contrib_tag = add_tag_before('x', ', an ', contrib_tag, 'aff')
+        
+        contrib_tag = add_tag_before('role', '', contrib_tag, 'aff')
+        for role_tag in contrib_tag.findall('./role'):
+            italic_tag = SubElement(role_tag, 'italic')
+            italic_tag.text = 'eLife'
+            italic_tag.tail = ' reviewing editor'
+        contrib_tag = add_tag_before('x', ', is at ', contrib_tag, 'aff')
+        
+        # Remove aff tag italic and its tail
+        for italic_tag in aff_tag.findall('./italic'):
+            aff_tag.remove(italic_tag)
+        
+        # Remove x_tag
+        contrib_tag.remove(x_tag)
     
     elif x_tag.text.strip() == 'is Chief Scientific Adviser at the':
         # 10.7554/eLife.01061
-        # TODO!!
-        pass
+        
+        contrib_tag = add_tag_before('x', ' is ', contrib_tag, 'aff')
+        contrib_tag = add_tag_before('role', 'Chief Scientific Adviser', contrib_tag, 'aff')
+        contrib_tag = add_tag_before('x', ' at the ', contrib_tag, 'aff')
+
+        # Remove x_tag
+        contrib_tag.remove(x_tag)
     
-    elif x_tag.text.strip() == 'is professor emeritus at the ':
+    elif x_tag.text.strip() == 'is professor emeritus at the':
         # 10.7554/eLife.01138
-        # TODO!!
-        pass
+
+        contrib_tag = add_tag_before('x', ' is ', contrib_tag, 'aff')
+        contrib_tag = add_tag_before('role', 'Professor emeritus', contrib_tag, 'aff')
+        contrib_tag = add_tag_before('x', ' at the ', contrib_tag, 'aff')
+        
+        # Remove x_tag
+        contrib_tag.remove(x_tag)
     
     elif x_tag.text.strip() == 'is the head of bioinformatics at the':
         # 10.7554/eLife.01294
-        # TODO!!
-        pass
-    
-    elif x_tag.text.strip() == 'is a PhD student in the':
-        # 10.7554/eLife.02658
-        # TODO!!
-        pass
+
+        contrib_tag = add_tag_before('x', ' is the ', contrib_tag, 'aff')
+        contrib_tag = add_tag_before('role', 'Head of bioinformatics', contrib_tag, 'aff')
+        contrib_tag = add_tag_before('x', ' at the ', contrib_tag, 'aff')
+
+        # Remove x_tag
+        contrib_tag.remove(x_tag)
     
     return contrib_tag
     
@@ -702,8 +762,8 @@ if __name__ == '__main__':
                             #,"elife00856.xml"
                             ]
     #"""
-    #file_type = "/*.xml"
-    #article_xml_filenames = glob.glob('input' + file_type)
+    file_type = "/*.xml"
+    article_xml_filenames = glob.glob('input' + file_type)
 
     for f in article_xml_filenames:
         #first_try(article_xml_filename)
