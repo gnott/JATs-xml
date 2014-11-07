@@ -255,7 +255,15 @@ def convert_contrib_aff(root):
                 non_role_values = ['is an', 'is at', 'is at the', 'is in', 'is in the']
                 if x_tag.text.strip() not in non_role_values:
                     
+                    # Convert specific values to roles
+                    contrib_tag = change_x_tag_to_role(contrib_tag, aff_tag, x_tag)
                     print "x_tag in " + get_doi(root) + ": " + x_tag.text
+                    
+            # Find italic tag if present
+            for italic_tag in aff_tag.findall('./italic'):
+                
+                print "italic_tag in " + get_doi(root) + ": " + italic_tag.text
+                    
 
         # Print out some plain text values that start with 'is' for review
         """
@@ -265,6 +273,102 @@ def convert_contrib_aff(root):
         """
                 
     return root
+
+def add_tag_before(tag_name, tag_text, parent_tag, before_tag_name):
+    """
+    Helper function to refactor the adding of new tags
+    especially for when converting text to role tags
+    """
+    new_tag = Element(tag_name)
+    new_tag.text = tag_text
+    parent_tag.insert( get_first_element_index(parent_tag, before_tag_name) - 1, new_tag)
+    return parent_tag
+    
+
+def change_x_tag_to_role(contrib_tag, aff_tag, x_tag):
+    """
+    Special cases of articles that need text to role tag conversions
+    """
+    if x_tag.text.strip() == 'is the chair of Patients Know Best and was the editor of the BMJ from 1991 to 2004':
+        # 10.7554/eLife.00351
+
+        contrib_tag = add_tag_before('x', ' is the ', contrib_tag, 'aff')
+        contrib_tag = add_tag_before('role', 'Chair of Patients Know Best', contrib_tag, 'aff')
+        contrib_tag = add_tag_before('x', ' and was the ', contrib_tag, 'aff')
+        contrib_tag = add_tag_before('role', 'Editor of the BMJ from 1991 to 2004', contrib_tag, 'aff')
+
+        # Remove x_tag
+        contrib_tag.remove(x_tag)
+    
+    elif x_tag.text.strip() == ', a senior editor on':
+        # 10.7554/eLife.00385
+        
+        contrib_tag = add_tag_before('x', ', a ', contrib_tag, 'aff')
+        contrib_tag = add_tag_before('role', 'Senior editor on ', contrib_tag, 'aff')
+        for role_tag in contrib_tag.findall('./role'):
+            italic_tag = SubElement(role_tag, 'italic')
+            italic_tag.text = 'eLife'
+        contrib_tag = add_tag_before('x', ', is in the ', contrib_tag, 'aff')
+        
+        # Remove aff tag italic and its tail
+        for italic_tag in aff_tag.findall('./italic'):
+            aff_tag.remove(italic_tag)
+        
+        # Remove x_tag
+        contrib_tag.remove(x_tag)
+    
+    elif x_tag.text.strip() == 'is Deputy Editor of':
+        # 10.7554/eLife.00615
+        # TODO!!
+        pass
+    
+    elif x_tag.text.strip() == 'is the director of':
+        # 10.7554/eLife.00639
+        # TODO!!
+        pass
+    
+    elif x_tag.text.strip() == 'is professor emeritus in the':
+        # 10.7554/eLife.00642
+        # TODO!!
+        pass
+    
+    elif x_tag.text.strip() == 'is a PhD student in the':
+        # 10.7554/eLife.00646
+        # TODO!!
+        pass
+    
+    elif x_tag.text.strip() == 'is director at the ':
+        # 10.7554/eLife.00856
+        # TODO!!
+        pass
+    
+    elif x_tag.text.strip() == ', an':
+        # 10.7554/eLife.00903
+        # TODO!!
+        pass
+    
+    elif x_tag.text.strip() == 'is Chief Scientific Adviser at the':
+        # 10.7554/eLife.01061
+        # TODO!!
+        pass
+    
+    elif x_tag.text.strip() == 'is professor emeritus at the ':
+        # 10.7554/eLife.01138
+        # TODO!!
+        pass
+    
+    elif x_tag.text.strip() == 'is the head of bioinformatics at the':
+        # 10.7554/eLife.01294
+        # TODO!!
+        pass
+    
+    elif x_tag.text.strip() == 'is a PhD student in the':
+        # 10.7554/eLife.02658
+        # TODO!!
+        pass
+    
+    return contrib_tag
+    
 
 def convert_fn_equal_contrib(root):
     """
@@ -584,6 +688,17 @@ if __name__ == '__main__':
                             ,"elife02791.xml"
                             ,"elife02951.xml"
                             ,"elife03401.xml"
+                            ,"elife00385.xml"
+                            ,"elife00615.xml"
+                            ,"elife00639.xml"
+                            ,"elife00642.xml"
+                            ,"elife00646.xml"
+                            ,"elife00856.xml"
+                            ,"elife00903.xml"
+                            ,"elife01061.xml"
+                            ,"elife01138.xml"
+                            ,"elife01294.xml"
+                            ,"elife02658.xml"
                             #,"elife00856.xml"
                             ]
     #"""
