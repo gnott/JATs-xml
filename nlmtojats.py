@@ -232,7 +232,7 @@ def convert_contrib_aff(root):
             # Take the tail of the bold tag and surround it with an x tag
             for bold_tag in aff_tag.findall('./bold'):
                 
-                print "found a bold tag"
+                #print "found a bold tag"
                 if bold_tag.tail and bold_tag.tail.strip() != '':
                     # Change the bold_tag to an x_tag
                     x_tag = Element('x')
@@ -257,12 +257,13 @@ def convert_contrib_aff(root):
                     
                     # Convert specific values to roles
                     contrib_tag = change_x_tag_to_role(contrib_tag, aff_tag, x_tag)
-                    print "x_tag in " + get_doi(root) + ": " + x_tag.text
+                    #print "x_tag in " + get_doi(root) + ": " + x_tag.text
                     
             # Find italic tag if present
             for italic_tag in aff_tag.findall('./italic'):
-                
-                print "italic_tag in " + get_doi(root) + ": " + italic_tag.text
+                # Convert specific values to roles
+                contrib_tag = change_italic_tag_to_role(contrib_tag, aff_tag, italic_tag)
+                #print "italic_tag in " + get_doi(root) + ": " + italic_tag.text
                     
 
         # Print out some plain text values that start with 'is' for review
@@ -429,6 +430,140 @@ def change_x_tag_to_role(contrib_tag, aff_tag, x_tag):
     
     return contrib_tag
     
+def change_italic_tag_to_role(contrib_tag, aff_tag, italic_tag):
+    """
+    Special cases of articles that need text to role tag conversions
+    containing <italic>eLife</italic> in their aff
+    """
+    if italic_tag.text.strip() not in ['eLife','eLife reviewing editor']:
+        # The content format is unexpected just return it
+        return contrib_tag
+    
+    # Continue
+    if (italic_tag.tail.strip() == ', and at'
+        and italic_tag.text.strip() == 'eLife reviewing editor'):
+        # 10.7554/eLife.00302
+        
+        contrib_tag = convert_italic_tag_to_role(
+            contrib_tag = contrib_tag,
+            italic_text = 'eLife',
+            italic_tail = ' reviewing editor',
+            x_tag_text  = ', and at ')
+
+        # Remove italic_tag
+        aff_tag.remove(italic_tag)
+    
+    elif (italic_tag.tail.strip() == 'reviewing editor, and is in the'
+          and italic_tag.text.strip() == 'eLife'):
+        # 10.7554/eLife.00281
+        # 10.7554/eLife.02087
+        # 10.7554/eLife.02475
+
+        contrib_tag = convert_italic_tag_to_role(
+            contrib_tag = contrib_tag,
+            italic_text = 'eLife',
+            italic_tail = ' reviewing editor',
+            x_tag_text  = ', and is in the ')
+        
+        # Remove italic_tag
+        aff_tag.remove(italic_tag)
+    
+    elif (italic_tag.tail.strip() == 'reviewing editor, and is at the'
+          and italic_tag.text.strip() == 'eLife'):
+        # 10.7554/eLife.00533
+        # 10.7554/eLife.00648
+        # 10.7554/eLife.01115
+        # 10.7554/eLife.01968
+        # 10.7554/eLife.02088
+
+        contrib_tag = convert_italic_tag_to_role(
+            contrib_tag = contrib_tag,
+            italic_text = 'eLife',
+            italic_tail = ' reviewing editor',
+            x_tag_text  = ', and is at the ')
+
+        # Remove italic_tag
+        aff_tag.remove(italic_tag)
+        
+    elif (italic_tag.tail.strip() == 'senior editor and is at the'
+          and italic_tag.text.strip() == 'eLife'):
+        # 10.7554/eLife.01140
+        
+        contrib_tag = convert_italic_tag_to_role(
+            contrib_tag = contrib_tag,
+            italic_text = 'eLife',
+            italic_tail = ' senior editor',
+            x_tag_text  = ' and is at the ')
+        
+        # Remove italic_tag
+        aff_tag.remove(italic_tag)
+        
+    elif (italic_tag.tail.strip() == 'senior editor, and is in the'
+          and italic_tag.text.strip() == 'eLife'):
+        # 10.7554/eLife.00353
+        # 10.7554/eLife.01515
+        # 10.7554/eLife.02791
+
+        contrib_tag = convert_italic_tag_to_role(
+            contrib_tag = contrib_tag,
+            italic_text = 'eLife',
+            italic_tail = ' senior editor',
+            x_tag_text  = ', and is in the ')
+
+        # Remove italic_tag
+        aff_tag.remove(italic_tag)
+    
+    elif (italic_tag.tail.strip() == 'Senior Editor, and is at the'
+          and italic_tag.text.strip() == 'eLife'):
+        # 10.7554/eLife.00676
+
+        contrib_tag = convert_italic_tag_to_role(
+            contrib_tag = contrib_tag,
+            italic_text = 'eLife',
+            italic_tail = ' Senior Editor',
+            x_tag_text  = ', and is at the ')
+
+        # Remove italic_tag
+        aff_tag.remove(italic_tag)
+    
+    elif (italic_tag.tail.strip() ==
+           'senior editor and is at the Hospital for Sick Children Research Institute,'
+          and italic_tag.text.strip() == 'eLife'):
+        # 10.7554/eLife.02517
+        
+        contrib_tag = convert_italic_tag_to_role(
+            contrib_tag = contrib_tag,
+            italic_text = 'eLife',
+            italic_tail = ' senior editor',
+            x_tag_text  = ' and is at the ')
+        
+        # Need to add a institution department tag
+        institution_tag = Element('institution')
+        institution_tag.text = 'Hospital for Sick Children Research Institute'
+        institution_tag.set('content-type', 'dept')
+        institution_tag.tail = ', '
+        aff_tag.insert(1, institution_tag)
+        
+        # Remove italic_tag
+        aff_tag.remove(italic_tag)
+    
+    return contrib_tag
+
+def convert_italic_tag_to_role(contrib_tag, italic_text, italic_tail, x_tag_text):
+    """
+    Specialized converter used when contrib aff italic eLife
+    tags are found and need converting, refactored for cleaner code
+    """
+    
+    contrib_tag = add_tag_before('role', '', contrib_tag, 'aff')
+    for role_tag in contrib_tag.findall('./role'):
+        role_italic_tag = SubElement(role_tag, 'italic')
+        role_italic_tag.text = italic_text
+        role_italic_tag.tail = italic_tail
+        
+    contrib_tag = add_tag_before('x', x_tag_text, contrib_tag, 'aff')
+    
+    return contrib_tag
 
 def convert_fn_equal_contrib(root):
     """
@@ -513,7 +648,7 @@ def convert_related_article(root):
     # Note the double slash to find the tag in all subelements, mostly paragraphs
     for related_article_tag in root.findall('./back/sec/sec//related-article'):
         # Change it
-        print related_article_tag
+        #print related_article_tag
         if related_article_tag.get('related-article-type') == 'generated-dataset':
             related_article_tag.set('related-article-type', "existing-dataset")
        
@@ -759,6 +894,20 @@ if __name__ == '__main__':
                             ,"elife01138.xml"
                             ,"elife01294.xml"
                             ,"elife02658.xml"
+                            ,"elife00281.xml"
+                            ,"elife00302.xml"
+                            ,"elife00353.xml"
+                            ,"elife00533.xml"
+                            ,"elife00648.xml"
+                            ,"elife00676.xml"
+                            ,"elife01115.xml"
+                            ,"elife01140.xml"
+                            ,"elife01515.xml"
+                            ,"elife01968.xml"
+                            ,"elife02087.xml"
+                            ,"elife02088.xml"
+                            ,"elife02475.xml"
+                            ,"elife02517.xml"
                             #,"elife00856.xml"
                             ]
     #"""
