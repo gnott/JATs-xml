@@ -227,53 +227,82 @@ def convert_contrib_aff(root):
     for contrib_tag in root.findall('./front/article-meta/contrib-group/contrib'):
         for aff_tag in contrib_tag.findall('./aff'):
 
-            x_tag = None
+            # Convert the aff tags found inside the corresponding contrib tag
+            contrib_tag, aff_tag = convert_aff_bold_tag(contrib_tag, aff_tag)
             
-            # Take the tail of the bold tag and surround it with an x tag
-            for bold_tag in aff_tag.findall('./bold'):
-                
-                #print "found a bold tag"
-                if bold_tag.tail and bold_tag.tail.strip() != '':
-                    # Change the bold_tag to an x_tag
-                    x_tag = Element('x')
-                    x_tag.text = bold_tag.tail
-                    
-                    # Insert the x tag before the aff tag
-                    aff_index = get_first_element_index(contrib_tag, 'aff')
-                    contrib_tag.insert(aff_index - 1, x_tag)
-                    
-                    aff_tag.remove(bold_tag)
-                else:
-                    # No tail, just remove the tag
-                    aff_tag.remove(bold_tag)
-            
-            # Turn the x_tag text into a role for some articles
-            if x_tag is not None:
-                
-                # How do we do this? One way is to first ignore all the values we know
-                #  do not contain a role
-                non_role_values = ['is an', 'is at', 'is at the', 'is in', 'is in the']
-                if x_tag.text.strip() not in non_role_values:
-                    
-                    # Convert specific values to roles
-                    contrib_tag = change_x_tag_to_role(contrib_tag, aff_tag, x_tag)
-                    #print "x_tag in " + get_doi(root) + ": " + x_tag.text
-                    
-            # Find italic tag if present
-            for italic_tag in aff_tag.findall('./italic'):
-                # Convert specific values to roles
-                contrib_tag = change_italic_tag_to_role(contrib_tag, aff_tag, italic_tag)
-                #print "italic_tag in " + get_doi(root) + ": " + italic_tag.text
-                    
+    # Change contrib aff tag that is not found nested inside, need to match by xref id
+    # Example is 10.7554/eLife.02854
+    for contrib_tag in root.findall('./front/article-meta/contrib-group/contrib'):
+        for xref_tag in contrib_tag.findall('./xref'):
+            if xref_tag.get('ref-type') == 'aff':
+                # Have the matching xref tag now look for the aff tag
+                for aff_tag in root.findall('./front/article-meta/contrib-group/aff'):
+                    if aff_tag.get('id') == xref_tag.get('rid'):
+                        contrib_tag, aff_tag = convert_aff_bold_tag(contrib_tag, aff_tag)
 
-        # Print out some plain text values that start with 'is' for review
-        """
-        for tag in aff_tag.iter():
-            if tag.tail and tag.tail.strip()[0:3] == 'is ':
-                print tag.tail
-        """
                 
     return root
+
+def convert_aff_bold_tag(contrib_tag, aff_tag):
+    """
+    In order to convert <bold> tag in an aff tag
+    Given the corresponding contrib and aff tags
+    do the conversion
+    """
+    
+    x_tag = None
+    
+    # Take the tail of the bold tag and surround it with an x tag
+    for bold_tag in aff_tag.findall('./bold'):
+        
+        print "found a bold tag"
+        if bold_tag.tail and bold_tag.tail.strip() != '':
+            # Change the bold_tag to an x_tag
+            x_tag = Element('x')
+            x_tag.text = bold_tag.tail
+            
+            # Insert the x tag before the aff tag
+            try:
+                aff_index = get_first_element_index(contrib_tag, 'aff')
+                contrib_tag.insert(aff_index - 1, x_tag)
+            except TypeError:
+                # In the case of where aff tags are not nested inside the contrib tag,
+                #  just append it to the end of the contrib tag
+                
+                #print "special contrib aff"
+                contrib_tag.append(x_tag)
+            
+            aff_tag.remove(bold_tag)
+        else:
+            # No tail, just remove the tag
+            aff_tag.remove(bold_tag)
+    
+    # Turn the x_tag text into a role for some articles
+    if x_tag is not None:
+        
+        # How do we do this? One way is to first ignore all the values we know
+        #  do not contain a role
+        non_role_values = ['is an', 'is at', 'is at the', 'is in', 'is in the']
+        if x_tag.text.strip() not in non_role_values:
+            
+            # Convert specific values to roles
+            contrib_tag = change_x_tag_to_role(contrib_tag, aff_tag, x_tag)
+            #print "x_tag in " + get_doi(root) + ": " + x_tag.text
+            
+    # Find italic tag if present
+    for italic_tag in aff_tag.findall('./italic'):
+        # Convert specific values to roles
+        contrib_tag = change_italic_tag_to_role(contrib_tag, aff_tag, italic_tag)
+        #print "italic_tag in " + get_doi(root) + ": " + italic_tag.text
+    
+    # Print out some plain text values that start with 'is' for review
+    """
+    for tag in aff_tag.iter():
+        if tag.tail and tag.tail.strip()[0:3] == 'is ':
+            print tag.tail
+    """
+    
+    return contrib_tag, aff_tag
 
 def add_tag_before(tag_name, tag_text, parent_tag, before_tag_name):
     """
@@ -555,13 +584,29 @@ def convert_italic_tag_to_role(contrib_tag, italic_text, italic_tail, x_tag_text
     tags are found and need converting, refactored for cleaner code
     """
     
-    contrib_tag = add_tag_before('role', '', contrib_tag, 'aff')
+    try:
+        contrib_tag = add_tag_before('role', '', contrib_tag, 'aff')
+    except TypeError:
+        # In the case of where the aff tag is not nested inside the contrib tag
+        #  append it instead
+        role_tag = Element('role')
+        contrib_tag.append(role_tag)
+        
     for role_tag in contrib_tag.findall('./role'):
         role_italic_tag = SubElement(role_tag, 'italic')
         role_italic_tag.text = italic_text
         role_italic_tag.tail = italic_tail
+            
+    try:
+        contrib_tag = add_tag_before('x', x_tag_text, contrib_tag, 'aff')
+    except TypeError:
+        # In the case of where the aff tag is not nested inside the contrib tag
+        #  append it instead
+        role_tag = Element('role')
         
-    contrib_tag = add_tag_before('x', x_tag_text, contrib_tag, 'aff')
+        x_tag = Element('x')
+        x_tag.text = x_tag_text
+        contrib_tag.append(x_tag)
     
     return contrib_tag
 
@@ -908,6 +953,7 @@ if __name__ == '__main__':
                             ,"elife02088.xml"
                             ,"elife02475.xml"
                             ,"elife02517.xml"
+                            ,"elife02854.xml"
                             #,"elife00856.xml"
                             ]
     #"""
