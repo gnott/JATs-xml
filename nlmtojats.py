@@ -621,14 +621,14 @@ def convert_fn_equal_contrib(root):
         
         # Convert id to a string in case it is None
         if fn_type == "other" and str(id)[0:5] == 'equal':
-            fn_tag.set('fn-type', "equal-contrib")
+            fn_tag.set('fn-type', "con")
 
     for xref_tag in root.findall('./front/article-meta/contrib-group/contrib/xref'):
         ref_type = xref_tag.get('ref-type')
         rid = xref_tag.get('rid')
 
         if ref_type == "fn" and str(rid)[0:5] == 'equal':
-            xref_tag.set('ref-type', "equal-contrib")
+            xref_tag.set('ref-type', "fn")
    
     return root
 
