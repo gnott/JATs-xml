@@ -610,6 +610,53 @@ def convert_italic_tag_to_role(contrib_tag, italic_text, italic_tail, x_tag_text
     
     return contrib_tag
 
+def convert_contrib_collab(root):
+    """
+    Given an xml.etree.ElementTree.Element,
+    Find contrib tag containing a collab tag and make changes for group authors
+    """
+    for contrib_tag in root.findall('./front/article-meta/contrib-group/contrib'):
+        if contrib_tag.findall('./collab'):
+            
+            #print "found a collab tag"
+            contrib_num = get_contrib_num_from_contrib(contrib_tag)
+            contrib_id_text = 'group-author-id' + str(int(contrib_num))
+            
+            contrib_id_tag = Element('contrib-id')
+            contrib_id_tag.set('contrib-id-type', 'group-author-key')
+            contrib_id_tag.text = contrib_id_text
+
+            contrib_tag.insert(0, contrib_id_tag)
+            
+            # Continue to convert collab-group tags linked by an rid
+            # Especially for 10.7554/eLife.02935
+            if contrib_tag.get('rid'):
+                for contrib_group_tag in root.findall('./front/article-meta/contrib-group'):
+                    if contrib_group_tag.get('id') == contrib_tag.get('rid'):
+                        # A match, add a tag and remove id and rid attributes
+                        for contrib_group_contrib_tag in contrib_group_tag.findall('./contrib'):
+                            contrib_group_contrib_tag.insert(0, contrib_id_tag)
+                        del contrib_tag.attrib['rid']
+                        del contrib_group_tag.attrib['id']
+
+    return root
+
+def get_contrib_num_from_contrib(root):
+    """
+    Given a contrib tag, look for the id or rid value
+    extract the numeric value at the end of it and return it
+    """
+    if root.get('id'):
+        num_text = root.get('id')
+    elif root.get('rid'):
+        num_text = root.get('rid')
+
+    try:
+       return re.sub('[a-zA-Z]', '', num_text)
+    except:
+        return None
+
+
 def convert_fn_equal_contrib(root):
     """
     Given an xml.etree.ElementTree.Element,
@@ -817,6 +864,7 @@ def convert(root):
     convert_contrib_orcid(root)
     convert_contrib_role(root)
     convert_contrib_aff(root)
+    convert_contrib_collab(root)
     convert_aff_department(root)
     convert_fn_equal_contrib(root)
     convert_copyright_statement(root)
@@ -954,6 +1002,8 @@ if __name__ == '__main__':
                             ,"elife02475.xml"
                             ,"elife02517.xml"
                             ,"elife02854.xml"
+                            ,"elife02725.xml"
+                            ,"elife02935.xml"
                             #,"elife00856.xml"
                             ]
     #"""
