@@ -859,6 +859,38 @@ def get_doi(root):
         
     return doi
 
+def get_volume(root):
+    
+    for tag in root.findall('./front/article-meta/volume'):
+        volume = tag.text
+        
+    return volume
+
+def log_volume(root):
+    """
+    Record each articles volume (1, 2 or 3) for later
+    """
+    f1 = open("volume1.txt", 'ab')
+    f2 = open("volume2.txt", 'ab')
+    f3 = open("volume3.txt", 'ab')
+    fx = open("volume_unknown.txt", 'ab')
+    
+    volume = get_volume(root)
+    
+    if int(volume) == 1:
+        f1.write("\n" + get_doi(root))
+    elif int(volume) == 2:
+        f2.write("\n" + get_doi(root))
+    elif int(volume) == 3:
+        f3.write("\n" + get_doi(root))
+    else:
+        fx.write("\n" + get_doi(root))
+        
+    f1.close()
+    f2.close()
+    f3.close()
+    fx.close()
+
 def convert(root):
     """
     Parent method that calls each individual conversion step
@@ -881,6 +913,9 @@ def convert(root):
     convert_related_article(root)
     convert_mixed_citation(root)
     convert_custom_meta_group(root)
+    
+    # Parse the volume number for processing in batches later
+    #log_volume(root)
 
     return root
 
