@@ -637,7 +637,8 @@ def convert_contrib_collab(root):
                         for contrib_group_contrib_tag in contrib_group_tag.findall('./contrib'):
                             contrib_group_contrib_tag.insert(0, contrib_id_tag)
                         del contrib_tag.attrib['rid']
-                        del contrib_group_tag.attrib['id']
+                        # Below, do not delete id attribute so it schema validates better
+                        #del contrib_group_tag.attrib['id']
 
     return root
 
