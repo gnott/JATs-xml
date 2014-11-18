@@ -121,7 +121,7 @@ def convert_contrib_role(root):
             #  require text changes to clean up the role value
             
             if role_tag.text.lstrip()[0:4] == 'is a':
-                # Article 02394
+                # Article 10.7554/eLife.02394
                 for name_tag in contrib_tag.findall('./name'):
                     x_tag = Element('x')
                     x_tag.text = ' is a '
@@ -161,7 +161,7 @@ def convert_contrib_role(root):
                     tag.tail = ''
             
             elif role_tag.text.lstrip()[0:3] == 'is ':
-                # Article 02619
+                # Article 10.7554/eLife.02619
                 for name_tag in contrib_tag.findall('./name'):
                     x_tag = Element('x')
                     x_tag.text = ' is '
@@ -804,6 +804,12 @@ def convert_mixed_citation(root):
                     #  check them out later - TODO!!!
                     pattern = re.compile("editor", re.UNICODE)
                     if pattern.search(tag.tail):
+                        """
+                        f = open("editor_tail.txt", 'ab')
+                        s = "\n" + "editors in doi " + get_doi(root) + ": " + tag.tail
+                        f.write(s)
+                        f.close()
+                        """
                         print "found citation editors in article doi " + get_doi(root)
                         
                     # Remove the content
