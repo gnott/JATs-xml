@@ -564,8 +564,11 @@ def change_italic_tag_to_role(contrib_tag, aff_tag, italic_tag):
         contrib_tag = convert_italic_tag_to_role(
             contrib_tag = contrib_tag,
             italic_text = 'eLife',
-            italic_tail = ' reviewing editor',
+            italic_tail = 'Reviewing Editor',
             x_tag_text  = ', and is at the ')
+        
+        # After adding the italic tag remove it
+        contrib_tag = change_role_and_x_tag(contrib_tag, 'is an', ' is a ')
 
         # Remove italic_tag
         aff_tag.remove(italic_tag)
@@ -1127,8 +1130,8 @@ if __name__ == '__main__':
                             #,"elife00856.xml"
                             ]
     #"""
-    #file_type = "/*.xml"
-    #article_xml_filenames = glob.glob('input' + file_type)
+    file_type = "/*.xml"
+    article_xml_filenames = glob.glob('input' + file_type)
 
     for f in article_xml_filenames:
         #first_try(article_xml_filename)
