@@ -475,9 +475,7 @@ def change_x_tag_to_role(contrib_tag, aff_tag, x_tag):
     elif x_tag.text.strip() == 'is Chief Scientific Adviser at the':
         # 10.7554/eLife.01061
         
-        contrib_tag = add_tag_before('x', ' is ', contrib_tag, 'aff')
-        contrib_tag = add_tag_before('role', 'Chief Scientific Adviser', contrib_tag, 'aff')
-        contrib_tag = add_tag_before('x', ' at the ', contrib_tag, 'aff')
+        contrib_tag = add_tag_before('x', ' is Chief Scientific Adviser at the ', contrib_tag, 'aff')
 
         # Remove x_tag
         contrib_tag.remove(x_tag)
