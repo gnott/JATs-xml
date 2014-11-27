@@ -226,7 +226,8 @@ def convert_contrib_role(root):
             elif (get_doi(root) == '10.7554/eLife.00270'
                   or get_doi(root) == '10.7554/eLife.00365'
                   or get_doi(root) == '10.7554/eLife.00799'
-                  or get_doi(root) == '10.7554/eLife.00855'):
+                  or get_doi(root) == '10.7554/eLife.00855'
+                  or get_doi(root) == '10.7554/eLife.01516'):
                 # Article 10.7554/eLife.00270
                 # Article 10.7554/eLife.00365
                 
@@ -1122,6 +1123,7 @@ if __name__ == '__main__':
                             ,"elife02854.xml"
                             ,"elife02725.xml"
                             ,"elife02935.xml"
+                            ,"elife01516.xml"
                             #,"elife00856.xml"
                             ]
     #"""
