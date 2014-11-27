@@ -225,7 +225,8 @@ def convert_contrib_role(root):
 
             elif (get_doi(root) == '10.7554/eLife.00270'
                   or get_doi(root) == '10.7554/eLife.00365'
-                  or get_doi(root) == '10.7554/eLife.00799'):
+                  or get_doi(root) == '10.7554/eLife.00799'
+                  or get_doi(root) == '10.7554/eLife.00855'):
                 # Article 10.7554/eLife.00270
                 # Article 10.7554/eLife.00365
                 
