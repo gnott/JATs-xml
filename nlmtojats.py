@@ -441,9 +441,7 @@ def change_x_tag_to_role(contrib_tag, aff_tag, x_tag):
         # 10.7554/eLife.00646
         # 10.7554/eLife.02658
         
-        contrib_tag = add_tag_before('x', ' is a ', contrib_tag, 'aff')
-        contrib_tag = add_tag_before('role', 'PhD student', contrib_tag, 'aff')
-        contrib_tag = add_tag_before('x', ' in the ', contrib_tag, 'aff')
+        contrib_tag = add_tag_before('x', ' is a PhD student in the ', contrib_tag, 'aff')
 
         # Remove x_tag
         contrib_tag.remove(x_tag)
@@ -1129,8 +1127,8 @@ if __name__ == '__main__':
                             #,"elife00856.xml"
                             ]
     #"""
-    file_type = "/*.xml"
-    article_xml_filenames = glob.glob('input' + file_type)
+    #file_type = "/*.xml"
+    #article_xml_filenames = glob.glob('input' + file_type)
 
     for f in article_xml_filenames:
         #first_try(article_xml_filename)
