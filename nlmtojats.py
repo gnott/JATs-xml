@@ -120,7 +120,8 @@ def convert_contrib_role(root):
             # At least two messy articles (02394 and 02619)
             #  require text changes to clean up the role value
             
-            if role_tag.text.lstrip()[0:4] == 'is a':
+            if (role_tag.text.lstrip()[0:4] == 'is a'
+                and get_doi(root) == '10.7554/eLife.02394'):
                 # Article 10.7554/eLife.02394
                 for name_tag in contrib_tag.findall('./name'):
                     x_tag = Element('x')
@@ -129,7 +130,9 @@ def convert_contrib_role(root):
                     # Hardcoded insert an Element at index 1 for this article
                     contrib_tag.insert(1, x_tag)
 
-                role_tag.text = role_tag.text.lstrip()[4:]
+                role_tag.text = "Senior Editor"
+                for italic_tag in role_tag.findall('./italic'):
+                    role_tag.remove(italic_tag)
                 
                 # Also need to change the tail on 02394
                 xref_tag = SubElement(contrib_tag, 'xref')
