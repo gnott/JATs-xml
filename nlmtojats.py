@@ -538,8 +538,19 @@ def change_italic_tag_to_role(contrib_tag, aff_tag, italic_tag):
         contrib_tag = convert_italic_tag_to_role(
             contrib_tag = contrib_tag,
             italic_text = 'eLife',
-            italic_tail = ' reviewing editor',
+            italic_tail = 'Reviewing Editor',
             x_tag_text  = ', and at ')
+
+        # After adding the italic tag remove it
+        for role_tag in contrib_tag.findall('./role'):
+            for role_italic_tag in role_tag.findall('./italic'):
+                role_tag.text = role_italic_tag.tail
+                role_tag.remove(role_italic_tag)
+                
+        # Change the first x tag text
+        for x_tag in contrib_tag.findall('./x'):
+            if x_tag.text.strip() == 'is an':
+                x_tag.text = ' is a '
 
         # Remove italic_tag
         aff_tag.remove(italic_tag)
