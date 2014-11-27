@@ -163,16 +163,51 @@ def convert_contrib_role(root):
                 for tag in role_tag.iter():
                     tag.tail = ''
             
-            elif role_tag.text.lstrip()[0:3] == 'is ':
+            elif (role_tag.text.lstrip()[0:3] == 'is '
+                  and get_doi(root) == '10.7554/eLife.02619'):
                 # Article 10.7554/eLife.02619
-                for name_tag in contrib_tag.findall('./name'):
-                    x_tag = Element('x')
-                    x_tag.text = ' is '
-                    
-                    # Hardcoded insert an Element at index 1 for this article
-                    contrib_tag.insert(1, x_tag)
-                    
-                role_tag.text = role_tag.text.lstrip()[3:]
+                
+                xref_tag = SubElement(contrib_tag, 'xref')
+                xref_tag.set('ref-type', "aff")
+                xref_tag.set('rid', "aff1")
+                
+                x_tag = Element('x')
+                x_tag.text = ' is Head of Production Operations at '
+                italic_tag = SubElement(x_tag, 'italic')
+                italic_tag.text = 'eLife'
+                
+                name_index = get_first_element_index(contrib_tag, 'name')
+                contrib_tag.insert(name_index, x_tag)
+                
+                # Remove role tag
+                contrib_tag.remove(role_tag)
+                
+                # New aff tag
+                aff_tag = Element('aff')
+                aff_tag.set('id', "aff1")
+                institution_tag = SubElement(aff_tag, 'institution')
+                italic_tag = SubElement(institution_tag, 'italic')
+                italic_tag.text = 'eLife'
+                institution_tag.tail = ', '
+                
+                addr_line_tag = SubElement(aff_tag, 'addr-line')
+                named_content_tag = SubElement(addr_line_tag, 'named-content')
+                named_content_tag.set('content-type', 'city')
+                named_content_tag.text = 'Cambridge'
+                addr_line_tag.tail = ', '
+                
+                country_tag = SubElement(aff_tag, 'country')
+                country_tag.text = 'United Kingdom'
+                email_tag = SubElement(aff_tag, 'email')
+                email_tag.text = 'production@elifesciences.org'
+
+                # Insert the aff tag
+                x_index = get_first_element_index(contrib_tag, 'x')
+                contrib_tag.insert(x_index, aff_tag)
+                
+                # Remove old email tag
+                for email_tag in contrib_tag.findall('./email'):
+                    contrib_tag.remove(email_tag)
 
             # Debug print role values for inspection
             """
