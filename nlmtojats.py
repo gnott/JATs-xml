@@ -167,10 +167,23 @@ def convert_contrib_role(root):
                   and get_doi(root) == '10.7554/eLife.02619'):
                 # Article 10.7554/eLife.02619
                 
+                # Remove role tag
+                contrib_tag.remove(role_tag)
+                
+                # Remove old email tag
+                for email_tag in contrib_tag.findall('./email'):
+                    contrib_tag.remove(email_tag)
+                
                 xref_tag = SubElement(contrib_tag, 'xref')
                 xref_tag.set('ref-type', "aff")
                 xref_tag.set('rid', "aff1")
                 
+                x_tag = SubElement(contrib_tag, 'x')
+                x_tag.text = ' is Head of Production Operations at '
+                italic_tag = SubElement(x_tag, 'italic')
+                italic_tag.text = 'eLife'
+                
+                """
                 x_tag = Element('x')
                 x_tag.text = ' is Head of Production Operations at '
                 italic_tag = SubElement(x_tag, 'italic')
@@ -178,9 +191,7 @@ def convert_contrib_role(root):
                 
                 name_index = get_first_element_index(contrib_tag, 'name')
                 contrib_tag.insert(name_index, x_tag)
-                
-                # Remove role tag
-                contrib_tag.remove(role_tag)
+                """
                 
                 # New aff tag
                 aff_tag = Element('aff')
@@ -205,9 +216,12 @@ def convert_contrib_role(root):
                 x_index = get_first_element_index(contrib_tag, 'x')
                 contrib_tag.insert(x_index, aff_tag)
                 
-                # Remove old email tag
-                for email_tag in contrib_tag.findall('./email'):
-                    contrib_tag.remove(email_tag)
+                # Move the contrib-id tag, just because
+                for contrib_id_tag in contrib_tag.findall('./contrib-id'):
+                    contrib_id_tag_2 = SubElement(contrib_tag, 'contrib-id')
+                    contrib_id_tag_2.text = contrib_id_tag.text
+                    contrib_id_tag_2.set('contrib-id-type', contrib_id_tag.get('contrib-id-type'))
+                    contrib_tag.remove(contrib_id_tag)
 
             # Debug print role values for inspection
             """
@@ -1089,6 +1103,8 @@ if __name__ == '__main__':
     #"""
     file_type = "/*.xml"
     article_xml_filenames = glob.glob('input' + file_type)
+
+    article_xml_filenames = ["elife02619.xml"]
 
     for f in article_xml_filenames:
         #first_try(article_xml_filename)
