@@ -491,9 +491,7 @@ def change_x_tag_to_role(contrib_tag, aff_tag, x_tag):
     elif x_tag.text.strip() == 'is the head of bioinformatics at the':
         # 10.7554/eLife.01294
 
-        contrib_tag = add_tag_before('x', ' is the ', contrib_tag, 'aff')
-        contrib_tag = add_tag_before('role', 'Head of bioinformatics', contrib_tag, 'aff')
-        contrib_tag = add_tag_before('x', ' at the ', contrib_tag, 'aff')
+        contrib_tag = add_tag_before('x', ' is the Head of bioinformatics at the ', contrib_tag, 'aff')
 
         # Remove x_tag
         contrib_tag.remove(x_tag)
