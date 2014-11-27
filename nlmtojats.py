@@ -223,6 +223,16 @@ def convert_contrib_role(root):
                     contrib_id_tag_2.set('contrib-id-type', contrib_id_tag.get('contrib-id-type'))
                     contrib_tag.remove(contrib_id_tag)
 
+            elif (get_doi(root) == '10.7554/eLife.00270'):
+                # Article 10.7554/eLife.00270
+                
+                # Remove italic tag
+                for italic_tag in role_tag.findall('./italic'):
+                    role_tag.remove(italic_tag)
+                # Strip the comma and space at the end
+                role_tag.text = role_tag.text.rstrip(', ')
+                
+
             # Debug print role values for inspection
             """
             for tag in role_tag.iter():
@@ -1103,8 +1113,6 @@ if __name__ == '__main__':
     #"""
     file_type = "/*.xml"
     article_xml_filenames = glob.glob('input' + file_type)
-
-    article_xml_filenames = ["elife02619.xml"]
 
     for f in article_xml_filenames:
         #first_try(article_xml_filename)
