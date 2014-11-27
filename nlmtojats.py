@@ -542,15 +542,7 @@ def change_italic_tag_to_role(contrib_tag, aff_tag, italic_tag):
             x_tag_text  = ', and at ')
 
         # After adding the italic tag remove it
-        for role_tag in contrib_tag.findall('./role'):
-            for role_italic_tag in role_tag.findall('./italic'):
-                role_tag.text = role_italic_tag.tail
-                role_tag.remove(role_italic_tag)
-                
-        # Change the first x tag text
-        for x_tag in contrib_tag.findall('./x'):
-            if x_tag.text.strip() == 'is an':
-                x_tag.text = ' is a '
+        contrib_tag = change_role_and_x_tag(contrib_tag, 'is an', ' is a ')
 
         # Remove italic_tag
         aff_tag.remove(italic_tag)
@@ -568,15 +560,7 @@ def change_italic_tag_to_role(contrib_tag, aff_tag, italic_tag):
             x_tag_text  = ', and is in the ')
         
         # After adding the italic tag remove it
-        for role_tag in contrib_tag.findall('./role'):
-            for role_italic_tag in role_tag.findall('./italic'):
-                role_tag.text = role_italic_tag.tail
-                role_tag.remove(role_italic_tag)
-                
-        # Change the first x tag text
-        for x_tag in contrib_tag.findall('./x'):
-            if x_tag.text.strip() == 'is an':
-                x_tag.text = ' is a '
+        contrib_tag = change_role_and_x_tag(contrib_tag, 'is an', ' is a ')
 
         # Remove italic_tag
         aff_tag.remove(italic_tag)
@@ -661,6 +645,25 @@ def change_italic_tag_to_role(contrib_tag, aff_tag, italic_tag):
         aff_tag.remove(italic_tag)
     
     return contrib_tag
+
+def change_role_and_x_tag(contrib_tag, x_tag_match_text, x_tag_replace_text):
+    """
+    Some reuseable code to alter role values with italic tags in them
+    after some QC changes
+    """
+    # After adding the italic tag remove it
+    for role_tag in contrib_tag.findall('./role'):
+        for role_italic_tag in role_tag.findall('./italic'):
+            role_tag.text = role_italic_tag.tail
+            role_tag.remove(role_italic_tag)
+            
+    # Change the first x tag text
+    for x_tag in contrib_tag.findall('./x'):
+        if x_tag.text.strip() == x_tag_match_text:
+            x_tag.text = x_tag_replace_text
+            
+    return contrib_tag
+        
 
 def convert_italic_tag_to_role(contrib_tag, italic_text, italic_tail, x_tag_text):
     """
