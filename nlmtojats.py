@@ -451,9 +451,7 @@ def change_x_tag_to_role(contrib_tag, aff_tag, x_tag):
     elif x_tag.text.strip() == 'is director at the':
         # 10.7554/eLife.00856
         
-        contrib_tag = add_tag_before('x', ' is ', contrib_tag, 'aff')
-        contrib_tag = add_tag_before('role', 'Director', contrib_tag, 'aff')
-        contrib_tag = add_tag_before('x', ' at the ', contrib_tag, 'aff')
+        contrib_tag = add_tag_before('x', ' is Director at the ', contrib_tag, 'aff')
 
         # Remove x_tag
         contrib_tag.remove(x_tag)
