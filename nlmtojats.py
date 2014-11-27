@@ -397,11 +397,8 @@ def change_x_tag_to_role(contrib_tag, aff_tag, x_tag):
     elif x_tag.text.strip() == ', a senior editor on':
         # 10.7554/eLife.00385
         
-        contrib_tag = add_tag_before('x', ', a ', contrib_tag, 'aff')
-        contrib_tag = add_tag_before('role', 'Senior editor on ', contrib_tag, 'aff')
-        for role_tag in contrib_tag.findall('./role'):
-            italic_tag = SubElement(role_tag, 'italic')
-            italic_tag.text = 'eLife'
+        contrib_tag = add_tag_before('x', ' is a ', contrib_tag, 'aff')
+        contrib_tag = add_tag_before('role', 'Senior Editor', contrib_tag, 'aff')
         contrib_tag = add_tag_before('x', ', is in the ', contrib_tag, 'aff')
         
         # Remove aff tag italic and its tail
