@@ -228,7 +228,8 @@ def convert_contrib_role(root):
                   or get_doi(root) == '10.7554/eLife.00799'
                   or get_doi(root) == '10.7554/eLife.00855'
                   or get_doi(root) == '10.7554/eLife.01516'
-                  or get_doi(root) == '10.7554/eLife.01633'):
+                  or get_doi(root) == '10.7554/eLife.01633'
+                  or get_doi(root) == '10.7554/eLife.03980'):
                 # Article 10.7554/eLife.00270
                 # Article 10.7554/eLife.00365
                 
@@ -238,6 +239,10 @@ def convert_contrib_role(root):
                 # Strip the comma and space at the end
                 role_tag.text = role_tag.text.rstrip(', ')
                 
+                if (get_doi(root) == '10.7554/eLife.03980'
+                    and contrib_tag.get('id') == 'author-1002'):
+                        email_tag = SubElement(contrib_tag, 'email')
+                        email_tag.text = "editorial@elifesciences.org"
 
             # Debug print role values for inspection
             """
@@ -1134,6 +1139,7 @@ if __name__ == '__main__':
                             ,"elife02935.xml"
                             ,"elife01516.xml"
                             ,"elife01633.xml"
+                            ,"elife03980.xml"
                             #,"elife00856.xml"
                             ]
     #"""
