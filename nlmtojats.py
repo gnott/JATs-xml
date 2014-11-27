@@ -224,7 +224,8 @@ def convert_contrib_role(root):
                     contrib_tag.remove(contrib_id_tag)
 
             elif (get_doi(root) == '10.7554/eLife.00270'
-                  or get_doi(root) == '10.7554/eLife.00365'):
+                  or get_doi(root) == '10.7554/eLife.00365'
+                  or get_doi(root) == '10.7554/eLife.00799'):
                 # Article 10.7554/eLife.00270
                 # Article 10.7554/eLife.00365
                 
