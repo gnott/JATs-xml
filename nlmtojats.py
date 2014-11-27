@@ -719,7 +719,12 @@ def convert_contrib_collab(root):
                             contrib_group_contrib_tag.insert(0, contrib_id_tag)
                         del contrib_tag.attrib['rid']
                         # Below, do not delete id attribute so it schema validates better
-                        #del contrib_group_tag.attrib['id']
+                        del contrib_group_tag.attrib['id']
+                for xref_tag in contrib_tag.findall('./xref'):
+                    if xref_tag.get('ref-type'):
+                        if (xref_tag.get('ref-type') == 'other'
+                           and xref_tag.get('rid')):
+                            contrib_tag.remove(xref_tag)
 
     return root
 
