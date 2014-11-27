@@ -571,8 +571,11 @@ def change_italic_tag_to_role(contrib_tag, aff_tag, italic_tag):
         contrib_tag = convert_italic_tag_to_role(
             contrib_tag = contrib_tag,
             italic_text = 'eLife',
-            italic_tail = ' senior editor',
+            italic_tail = 'Senior Editor',
             x_tag_text  = ' and is at the ')
+        
+        # After adding the italic tag remove it
+        contrib_tag = change_role_and_x_tag(contrib_tag, 'is an', ' is a ')
         
         # Remove italic_tag
         aff_tag.remove(italic_tag)
