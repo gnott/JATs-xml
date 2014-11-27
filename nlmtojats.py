@@ -223,8 +223,10 @@ def convert_contrib_role(root):
                     contrib_id_tag_2.set('contrib-id-type', contrib_id_tag.get('contrib-id-type'))
                     contrib_tag.remove(contrib_id_tag)
 
-            elif (get_doi(root) == '10.7554/eLife.00270'):
+            elif (get_doi(root) == '10.7554/eLife.00270'
+                  or get_doi(root) == '10.7554/eLife.00365'):
                 # Article 10.7554/eLife.00270
+                # Article 10.7554/eLife.00365
                 
                 # Remove italic tag
                 for italic_tag in role_tag.findall('./italic'):
