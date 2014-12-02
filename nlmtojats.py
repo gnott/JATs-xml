@@ -243,6 +243,15 @@ def convert_contrib_role(root):
                     and contrib_tag.get('id') == 'author-1002'):
                         email_tag = SubElement(contrib_tag, 'email')
                         email_tag.text = "editorial@elifesciences.org"
+                        
+                if (get_doi(root) == '10.7554/eLife.01633'
+                    and contrib_tag.get('id') == 'author-1032'):
+                        email_tag = SubElement(contrib_tag, 'email')
+                        email_tag.text = "editorial@elifesciences.org"
+                        
+                        for contrib_group_tag in root.findall('./front/article-meta/contrib-group'):
+                            for cg_email_tag in contrib_group_tag.findall('./email'):
+                                contrib_group_tag.remove(cg_email_tag)
 
             # Debug print role values for inspection
             """
