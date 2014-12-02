@@ -913,6 +913,17 @@ def convert_mixed_citation(root):
                         """
                         print "found citation editors in article doi " + get_doi(root)
                         
+                    if (tag.tail.strip() == '. In: The C. elegans Research Community, editors.'
+                        and get_doi(root) == '10.7554/eLife.00329'):
+                        # Add an editor for this article
+                        editor_tag = SubElement(mixed_citation_tag, 'person-group')
+                        editor_tag.set('person-group-type', 'editor')
+                        collab_tag = SubElement(editor_tag, 'collab')
+                        collab_tag.text = 'The '
+                        italic_tag = SubElement(collab_tag, 'italic')
+                        italic_tag.text = 'C. elegans'
+                        italic_tag.tail = ' Research Community'
+                        
                     # Remove the content
                     tag.tail = ''
 
@@ -1149,6 +1160,7 @@ if __name__ == '__main__':
                             ,"elife01516.xml"
                             ,"elife01633.xml"
                             ,"elife03980.xml"
+                            ,"elife00329.xml"
                             #,"elife00856.xml"
                             ]
     #"""
