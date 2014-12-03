@@ -612,9 +612,10 @@ def change_italic_tag_to_role(contrib_tag, aff_tag, italic_tag):
         # Remove italic_tag
         aff_tag.remove(italic_tag)
     
-    elif (italic_tag.tail.strip() == 'Senior Editor, and is at the'
+    elif (italic_tag.tail.strip().lower() == 'senior editor, and is at the'
           and italic_tag.text.strip() == 'eLife'):
         # 10.7554/eLife.00676
+        # 10.7554/eLife.00477
 
         contrib_tag = convert_italic_tag_to_role(
             contrib_tag = contrib_tag,
@@ -944,6 +945,22 @@ def convert_custom_meta_group(root):
                         meta_value_tag.text = "2"
     return root
 
+def check_for_contrib_aff_italic(root):
+    """
+    Checking to see which articles have a
+    <contrib> or <aff> tag with a nested italic tag
+    that should possibly be converted to a role
+    """
+    for contrib_group_tag in root.findall('./front/article-meta/contrib-group'):
+        if not contrib_group_tag.get('content-type'):
+            for contrib_tag in contrib_group_tag.findall('./contrib'):
+                for aff_tag in contrib_tag.findall('./aff'):
+                    for italic_tag in aff_tag.findall('./italic'):
+                        print "__ found contrib italic in " + get_doi(root)
+            for aff_tag in contrib_group_tag.findall('./aff'):
+                for italic_tag in aff_tag.findall('./italic'):
+                    print "__ found aff italic in " + get_doi(root)
+
 def get_first_element_index(root, tag_name):
     """
     In order to use Element.insert() in a convenient way,
@@ -1024,7 +1041,10 @@ def convert(root):
     convert_related_article(root)
     convert_mixed_citation(root)
     convert_custom_meta_group(root)
-    
+
+    # Checking for italic tags in contrib aff that were not converted
+    check_for_contrib_aff_italic(root)
+
     # Parse the volume number for processing in batches later
     #log_volume(root)
 
@@ -1161,6 +1181,11 @@ if __name__ == '__main__':
                             ,"elife01633.xml"
                             ,"elife03980.xml"
                             ,"elife00329.xml"
+                            ,"elife00477.xml"
+                            ,"elife00729.xml"
+                            ,"elife01234.xml"
+                            ,"elife01779.xml"
+                            ,"elife01820.xml"
                             #,"elife00856.xml"
                             ]
     #"""
