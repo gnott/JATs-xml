@@ -540,11 +540,12 @@ def change_italic_tag_to_role(contrib_tag, aff_tag, italic_tag):
         # Remove italic_tag
         aff_tag.remove(italic_tag)
     
-    elif (italic_tag.tail.strip() == 'reviewing editor, and is in the'
+    elif (italic_tag.tail.strip().lower() == 'reviewing editor, and is in the'
           and italic_tag.text.strip() == 'eLife'):
         # 10.7554/eLife.00281
         # 10.7554/eLife.02087
         # 10.7554/eLife.02475
+        # 10.7554/eLife.01820
 
         contrib_tag = convert_italic_tag_to_role(
             contrib_tag = contrib_tag,
