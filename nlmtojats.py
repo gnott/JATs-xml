@@ -1145,8 +1145,8 @@ def output(root, type = 'JATS'):
     # Remove  article xmlns:ns0=
     #reparsed.documentElement.removeAttribute('xmlns:ns0')
     
-    reparsed_string =  reparsed.toprettyxml(indent="\t", encoding = encoding)
-    #reparsed_string = reparsed.toxml(encoding = encoding)
+    #reparsed_string =  reparsed.toprettyxml(indent="\t", encoding = encoding)
+    reparsed_string = reparsed.toxml(encoding = encoding)
 
     #reparsed_string = cgi.escape(reparsed_string).encode('utf-8', 'xmlcharrefreplace')
     return reparsed_string
