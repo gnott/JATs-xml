@@ -652,6 +652,29 @@ def change_italic_tag_to_role(contrib_tag, aff_tag, italic_tag):
         
         # Remove italic_tag
         aff_tag.remove(italic_tag)
+        
+    elif (italic_tag.tail.strip() == ', is at the'
+          and italic_tag.text.strip() == 'eLife'):
+        # 10.7554/eLife.00729
+        
+        contrib_tag = convert_italic_tag_to_role(
+            contrib_tag = contrib_tag,
+            italic_text = 'eLife',
+            italic_tail = 'Senior Editor',
+            x_tag_text  = ', is at the ')
+        
+        # Change the original x tag contents
+        for contrib_x_tag in contrib_tag.findall('./x'):
+            if contrib_x_tag.text.strip() == ', a senior editor at':
+                contrib_x_tag.text = ', a'
+                
+        for role_tag in contrib_tag.findall('./role'):
+            for role_italic_tag in role_tag.findall('./italic'):
+                role_tag.text = role_italic_tag.tail
+                role_tag.remove(role_italic_tag)
+
+        # Remove italic_tag
+        aff_tag.remove(italic_tag)
     
     return contrib_tag
 
