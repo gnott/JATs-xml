@@ -1064,11 +1064,12 @@ def get_volume(root):
 
 def log_volume(root):
     """
-    Record each articles volume (1, 2 or 3) for later
+    Record each articles volume (1, 2, 3 or 4) for later
     """
     f1 = open("volume1.txt", 'ab')
     f2 = open("volume2.txt", 'ab')
     f3 = open("volume3.txt", 'ab')
+    f4 = open("volume4.txt", 'ab')
     fx = open("volume_unknown.txt", 'ab')
     
     volume = get_volume(root)
@@ -1079,12 +1080,15 @@ def log_volume(root):
         f2.write("\n" + get_doi(root))
     elif int(volume) == 3:
         f3.write("\n" + get_doi(root))
+    elif int(volume) == 4:
+        f4.write("\n" + get_doi(root))
     else:
         fx.write("\n" + get_doi(root))
         
     f1.close()
     f2.close()
     f3.close()
+    f4.close()
     fx.close()
 
 def convert(root):
@@ -1112,9 +1116,6 @@ def convert(root):
 
     # Checking for italic tags in contrib aff that were not converted
     check_for_contrib_aff_italic(root)
-
-    # Parse the volume number for processing in batches later
-    #log_volume(root)
 
     return root
 
@@ -1175,6 +1176,16 @@ class ElifeDocumentType(minidom.DocumentType):
             writer.write("]")
         writer.write(">"+newl)
 
+def is_jats(root):
+    """
+    Given an ElementTree instance from parsing XML file,
+    check if it is JATS format in very basic form
+    so we do not need to convert a file that is already JATS
+    """
+    if root.get('dtd-version') == '1.1d1':
+        return True
+    return False
+
 def convert_file(article_xml_filename, output_type = "JATS"):
 
     # Register namespaces
@@ -1186,12 +1197,20 @@ def convert_file(article_xml_filename, output_type = "JATS"):
     
     root = parse("input/" + article_xml_filename)
     
-    if output_type == "JATS":
+    if output_type == "JATS" and is_jats(root):
+        # Do not convert JATS to JATS
+        print article_xml_filename + " is already JATS"
+    
+    if output_type == "JATS" and not is_jats(root):
         # Do the conversion
+        print article_xml_filename + " is not JATS, converting"
         root = convert(root)
     
-    reparsed_string = output(root, output_type)
+    # Parse the volume number for processing in batches later
+    #log_volume(root)
     
+    # Start the file output
+    reparsed_string = output(root, output_type)
     
     f = open("output/" + article_xml_filename, 'wb')
     f.write(reparsed_string)
