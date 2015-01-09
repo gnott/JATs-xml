@@ -1216,7 +1216,7 @@ def convert_file(article_xml_filename, output_type = "JATS"):
     f.write(reparsed_string)
     f.close()
     
-    escape(reparsed_string)
+    #escape(reparsed_string)
 
 if __name__ == '__main__':
     
